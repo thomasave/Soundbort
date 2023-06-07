@@ -125,15 +125,29 @@ async function scopeServer(interaction: Discord.ChatInputCommandInteraction): Pr
         return replyEmbedEphemeral("Call this command in a server to get the server list.", EmbedType.Error);
     }
 
-    const samples = await CustomSample.getGuildSamples(interaction.guildId);
+    let samples = await CustomSample.getGuildSamples(interaction.guildId);
     const slots = await CustomSample.countSlots(interaction.guildId);
 
     if (samples.length === 0) {
         return replyEmbedEphemeral("Your server doesn't have any sound clips in its soundboard. Add them with `/upload`.", EmbedType.Info);
     }
 
+
+    if (samples.length > 25) {
+        let channel = interaction.channel;
+        let messages = Math.ceil(samples.length / 25) - 1
+        if (channel) {
+            for (let i = 0; i < messages-1; i++) {
+                let message = generateSampleMessage(
+                    samples.slice(25 * i, 25 * (i+1)), `${interaction.guild.name}'s Server Samples`, interaction.guild.iconURL({ size: 32 }), slots,
+                );
+                channel.send(message);
+            }
+        }
+        samples = samples.slice(25 * (messages-1), 25 * messages);
+    }
     return generateSampleMessage(
-        samples, `${interaction.guild.name}'s Server Samples`, interaction.guild.iconURL({ size: 32 }), slots,
+            samples, `${interaction.guild.name}'s Server Samples`, interaction.guild.iconURL({ size: 32 }), slots,
     );
 }
 
