@@ -133,7 +133,6 @@ async function scopeServer(interaction: Discord.ChatInputCommandInteraction): Pr
                 channel.send(message);
             }
         }
-        samples = samples.slice(25 * (messages-1), 25 * messages);
     }
     return replyEmbedEphemeral("Please click on the buttons sent below.", EmbedType.Info);
 }
@@ -150,9 +149,19 @@ async function scopeUser(interaction: Discord.ChatInputCommandInteraction): Prom
         return replyEmbedEphemeral("You don't have any sound clips in your soundboard. Add them with `/upload`.", EmbedType.Info);
     }
 
-    return generateSampleMessage(
-        samples, `${interaction.user.username}'s Samples`, interaction.user.avatarURL({ size: 32 }), slots,
-    );
+    if (samples.length > 25) {
+        let channel = interaction.channel;
+        let messages = Math.ceil(samples.length / 25)
+        if (channel) {
+            for (let i = 0; i < messages; i++) {
+                let message = generateSampleMessage(
+                    samples.slice(25 * i, 25 * (i+1)), `${interaction.user.username}'s Samples`, interaction.user.avatarURL({ size: 32 }), slots,
+                );
+                channel.send(message);
+            }
+        }
+    }
+    return replyEmbedEphemeral("Please click on the buttons sent below.", EmbedType.Info);
 }
 
 export function install({ registry }: CmdInstallerArgs): void {
