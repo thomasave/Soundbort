@@ -49,18 +49,7 @@ function generateSampleMessage(
     joinNotice: boolean = true,
 ): Pick<Discord.InteractionReplyOptions, "embeds" | "components"> {
     const rows = generateSampleButtons(samples);
-
-    const embed = createEmbed().setAuthor({
-        name: title,
-        iconURL: iconUrl ?? undefined,
-    });
-    if (joinNotice) embed.setDescription("Join a voice channel and click on one of the buttons below. ✨");
-    if (slots) embed.setFooter({
-        text: `Slots: ${samples.length} / ${slots} used.` +
-            ((slots < CustomSample.MAX_SLOTS) ? " See /vote to get more slots" : ""),
-    });
-
-    return { embeds: [embed], components: rows };
+    return { embeds: [], components: rows };
 }
 
 async function scopeAll(interaction: Discord.ChatInputCommandInteraction): Promise<void> {
@@ -135,9 +124,9 @@ async function scopeServer(interaction: Discord.ChatInputCommandInteraction): Pr
 
     if (samples.length > 25) {
         let channel = interaction.channel;
-        let messages = Math.ceil(samples.length / 25) - 1
+        let messages = Math.ceil(samples.length / 25)
         if (channel) {
-            for (let i = 0; i < messages-1; i++) {
+            for (let i = 0; i < messages; i++) {
                 let message = generateSampleMessage(
                     samples.slice(25 * i, 25 * (i+1)), `${interaction.guild.name}'s Server Samples`, interaction.guild.iconURL({ size: 32 }), slots,
                 );
@@ -146,9 +135,7 @@ async function scopeServer(interaction: Discord.ChatInputCommandInteraction): Pr
         }
         samples = samples.slice(25 * (messages-1), 25 * messages);
     }
-    return generateSampleMessage(
-            samples, `${interaction.guild.name}'s Server Samples`, interaction.guild.iconURL({ size: 32 }), slots,
-    );
+    return replyEmbedEphemeral("Please click on the buttons sent below.", EmbedType.Info);
 }
 
 async function scopeUser(interaction: Discord.ChatInputCommandInteraction): Promise<SimpleFuncReturn> {
