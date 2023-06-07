@@ -36,6 +36,12 @@ function generateSampleButtons(samples: CustomSample[] | StandardSample[]): Disc
         rows[row].addComponents(button);
 
         i++;
+        if (i == 26) {
+            await reply(rows)
+            i = 0;
+            rows = Discord.ActionRowBuilder < Discord.ButtonBuilder > [] =[];
+        }
+        await reply(rows)
     }
 
     return rows;
@@ -75,9 +81,9 @@ async function scopeAll(interaction: Discord.ChatInputCommandInteraction): Promi
     };
 
     if (standard_samples.length > 0) {
-        await reply(generateSampleMessage(
+        await generateSampleMessage(
             standard_samples, "Standard Samples", client.user.avatarURL({ size: 32 }),
-        ));
+        );
     }
 
     if (user_samples.length + guild_samples.length === 0) {
